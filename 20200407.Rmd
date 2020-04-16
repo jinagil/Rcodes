@@ -1,8 +1,8 @@
 ---
-title: '경제성장론: 4월 7일'
+title: '20200407 Economic Growth'
 author: "Jina Gil"
 date: "4/7/2020"
-output: html_document
+output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
@@ -11,21 +11,21 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Thesis: Commodity-exporting states and TFP?
 
-만약 한 국가가 지식－중심의 발전에 의존하지 않고 원자재 수출에 의존한다면, TFP의 트렌드와 GDP per Capita Growth의 트렌드는 조금 다르지 않을까? (Yes, I am talking about Latin America)
+만약 한 국가가 지식－중심의　발전이　아닌　원자재　수출에　의존한다면，　ＴＦＰ의　영향력은　상대적으로　줄어들지　않을까？　(Yes, I am talking about Latin America)
 
-## 세 가지 비교군!
+---
+## 세　가지　비교군
 
 - Chile (main, Copper)
 - Saudi Arabia (Oil)
 - Brazil (Agriculture: mining과 약간은 다를 것 같다는 가정 하)
 - Republic of Korea (지식-중심의 발전을 한 대표적인 국가)
 
-
 ---
 ## 데이터 정리: per Capita + Growth Rate 삽입
 ```{r}
 library(SDSRegressionR)
-setwd("C:/Users/Jina Gil/Documents/SNU/Spring 2020/Econ. Growth/")
+setwd("C:/Users/Jina Gil/Documents/SNU/Spring 2020/Econ. Growth")
 library(foreign)
 library(readstata13)
 pwt <- read.dta13("data/pwt91.dta")
@@ -40,8 +40,8 @@ pwt.g = pwt %>%
          dif.growth = gcap -lag(gcap),
          grate = (dif.growth / dif.year)/gcap*100)
 ```
----
 
+---
 ## 1. Chile: Copper 
 
 ```{r}
@@ -55,7 +55,7 @@ g_c <- ggplot(chile, aes(x=year, y=grate, color=countrycode))+
 g_c + labs(colour = "factor")
 ```
 
-
+---
 ## 2. Saudi Arabia: Oil
 ```{r}
 saudi <- pwt.g[pwt.g$countrycode %in% c("SAU"),]
@@ -69,7 +69,7 @@ g_saudi + labs(colour = "factor")
 ```
 
 
-
+---
 ## 3. Brazil: Agriculture
 ```{r}
 brazil <- pwt.g[pwt.g$countrycode %in% c("BRA"),]
@@ -79,11 +79,10 @@ g_bra <- ggplot(brazil, aes(x=year, y=grate, color=countrycode))+
   scale_y_continuous(sec.axis = sec_axis(~./scl, name = "Index 2011=1"))+
   labs(title="GDP per Capita Growth Rate", subtitle="Brazil",
        x="Year", y="Growth (%)")
-g_bra + labs(colour = "factor")
 ```
 
 
-
+---
 ## 4. Korea: Technology-dependent 
 ```{r}
 korea <- pwt.g[pwt.g$countrycode %in% c("KOR"),]
@@ -96,16 +95,16 @@ g_kor <- ggplot(korea, aes(x=year, y=grate, color=countrycode))+
 g_kor + labs(colour = "factor")
 ```
 
+
 ---
-## Wait, seems like...
+##Wait, seems like...
 TFP는 어찌됐건 성장률이랑 비슷한 트렌드라는 것. 
 그러나...
-
 - 반드시 회귀분석을 통해 TFP가 얼마나 part를 차지하는지 알아봐야 할 것 (그러나...)
 - 아니면, 다른 요인이 있는 것 아닌가? 
 
 
-
+---
 ## 후보군: Human Capital
 ```{r}
 la <- pwt.g[pwt.g$countrycode %in% c("ARG", "BRA", "CHL", "COL", "GTM", "PER", "URY",
@@ -115,15 +114,4 @@ g_hc <- ggplot(la, aes(x=year, y=hc, group=countrycode, color=countrycode))+
   labs(title="Human Capital Index", subtitle="10 States of Latin America",
        x="Year", y="Growth (%)")
 g_hc
-```
-
-
-## 기타 그래프들
-- Capital Stock
-```{r}
-g_capital <- ggplot(la, aes(x=year, y=rnna, group=countrycode, color=countrycode))+
-                       geom_line()+theme_bw() + 
-                       labs(title="Capital Stock", subtitle="10 States of Latin America",
-                            x="Year", y="Growth (%)")
-g_capital
 ```
