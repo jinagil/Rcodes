@@ -1,0 +1,141 @@
+---
+title: 'Assignment #4: Latin American Trade'
+author: "Jina Gil"
+date: "4/7/2020"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+Latin America is well-known for its commodity exports, and majority of people easily thinks that Latin America's manufacturing sectors, 
+especially high-technology sectors, are comparably weaker than most of nations of the world. 
+
+Is it true? How much the import and export of Latin American manufacturing sectors takes from its GDP? 
+
+## Research Question
+
+- Do Argentina, Brazil, and Chile's main exports are commodity goods, including agriculture and mining?
+- How much the manufacturing sectors take part of their GDP per Capita growth? 
+- How do their technology-development rate and human capital index look like? 
+
+## Data Selection and Methods
+
+- Trade data is from UN's COMTRADE dataset, at SITC 2 digits. 
+- GDP per Capita growth, TFP level (and growth), and human capital index are all driven from PwT 9.1 dataset.
+
+---
+## Some pre-works...
+```{r}
+rm(list=ls())
+library(SDSRegressionR)
+setwd("C:/Users/Jina Gil/Documents/SNU/Spring 2020/Latin America/Assignments")
+library(readxl)
+ctr <- read.csv("data/comtrade2.csv", stringsAsFactors = FALSE)
+library(dplyr)
+ctr %>% arrange(country)
+```
+---
+
+## First, Argentina
+### Exports!
+
+```{r}
+arg <- ctr[ctr$country %in% c("Argentina"),]
+arg.ex <- arg[arg$tflowcode %in% c(2),]
+arg.im <- arg[arg$tflowcode %in% c(1),]
+ga.ex <- ggplot(arg.ex, aes(x=Period, y=trade.value, group=comcode, color=comdesc))+geom_line()+theme_bw() + 
+  labs(title="Exports", subtitle="Argentina",
+       x="Year", y="Values", fill="Types of Exported Goods")
+ga.ex
+```
+
+## Second, Brazil
+
+```{r}
+brz <- ctr[ctr$country %in% c("Brazil"),]
+brz.ex <- brz[brz$tflowcode %in% c(2),]
+brz.im <- brz[brz$tflowcode %in% c(1),]
+gb.ex <- ggplot(brz.ex, aes(x=Period, y=trade.value, group=comcode, color=comdesc))+geom_line()+theme_bw() + 
+  labs(title="Exports", subtitle="Brazil",
+       x="Year", y="Values", fill="Types of Exported Goods")
+gb.ex
+```
+
+## Third, Chile
+```{r}
+chile <- ctr[ctr$country %in% c("Chile"),]
+chile.ex <- chile[chile$tflowcode %in% c(2),]
+chile.im <- chile[chile$tflowcode %in% c(1),]
+gc.ex <- ggplot(chile.ex, aes(x=Period, y=trade.value, group=comcode, color=comdesc))+geom_line()+theme_bw() + 
+  labs(title="Exports", subtitle="Chile",
+       x="Year", y="Values", fill="Types of Exported Goods")
+gc.ex
+```
+
+## Export and Import
+
+- Their main exports (except Argentina): **crude materials**. 
+- However, all three states also exports lots of **manufactured goods**. 
+
+---
+## Let's look at their GDP per Capita growth and TFP.
+```{r}
+library(readstata13)
+pwt <- read.dta13("C:/Users/Jina Gil/Documents/SNU/Spring 2020/Econ. Growth/data/pwt91.dta")
+pwt$gcap <- pwt$rgdpna / pwt$pop
+pwt.g = pwt %>%
+  arrange(countrycode) %>%
+  mutate(dif.year = year - lag(year),
+         dif.growth = gcap -lag(gcap),
+         grate = (dif.growth / dif.year)/gcap*100)
+argen <- pwt.g[pwt.g$countrycode %in% c("ARG"),]
+chi <- pwt.g[pwt.g$countrycode %in% c("CHL"),]
+brazil <- pwt.g[pwt.g$countrycode %in% c("BRA"),]
+scl=20
+```
+---
+
+## First, Argentina
+```{r}
+g_a <- ggplot(argen, aes(x=year, y=grate, color=countrycode))+
+  geom_line()+theme_bw()+ geom_line(aes(y = ctfp*scl, colour = "TFP")) +
+  scale_y_continuous(sec.axis = sec_axis(~./scl, name = "Index 2011=1"))+
+  labs(title="GDP per Capita Growth Rate", subtitle="Argentina",
+       x="Year", y="Growth (%)")
+g_a + labs(colour = "factor")
+```
+
+## Second, Brazil 
+```{r}
+g_bra <- ggplot(brazil, aes(x=year, y=grate, color=countrycode))+
+  geom_line()+theme_bw()+ geom_line(aes(y = ctfp*scl, colour = "TFP")) +
+  scale_y_continuous(sec.axis = sec_axis(~./scl, name = "Index 2011=1"))+
+  labs(title="GDP per Capita Growth Rate", subtitle="Brazil",
+       x="Year", y="Growth (%)")
+g_bra + labs(colour = "factor")
+```
+
+## Third, Chile
+```{r}
+g_c <- ggplot(chi, aes(x=year, y=grate, color=countrycode))+
+  geom_line()+theme_bw()+ geom_line(aes(y = ctfp*scl, colour = "TFP")) +
+  scale_y_continuous(sec.axis = sec_axis(~./scl, name = "Index 2011=1"))+
+  labs(title="GDP per Capita Growth Rate", subtitle="Chile",
+       x="Year", y="Growth (%)")
+g_c + labs(colour = "factor")
+```
+
+## Wait, the results are...
+- TFP, Growth rate goes almost together. Not surprising. 
+(TFP? Time Factor Productivity, measuring the technology development contributing to GDP)
+- Does this mean that there is a manufacturing sector, high-tech industry increasing TFP? We do not know. Yet. 
+
+## What we get?
+- Their main exports *are* commodity goods, yet they also exports manufactures!
+- Their TFP level follows the GDP per Capita growth, so there might be...?
+- Yet, we need to measure out the TFP **Growth** rate.
+- Regression is needed! Yet, the dataset is not balanced, so need more variables to control it. 
