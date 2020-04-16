@@ -6,4 +6,4 @@
 - Simply, not so much.
    ...Yet will update more and more, for the concept of recycling. 
    
- *heavily influenced by Michael J. Mahometa (@MichaelJMahometa)'s SDSRegression package.*
+ *heavily influenced by Michael J. Mahometa (@MichaelJMahometa)'s [SDSRegressionR](https://github.com/MichaelJMahometa/SDSRegressionR) package.*
